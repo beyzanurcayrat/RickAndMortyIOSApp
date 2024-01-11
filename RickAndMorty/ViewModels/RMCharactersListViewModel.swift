@@ -9,11 +9,28 @@ import UIKit
 
 
 final class RMCharactersListViewModel: NSObject {
-    func fetchCharacters(){
-        RMService.shared.execute(.listCaharactersRequests, expecting: RMGetCharactersResponse.self) { result in
+    
+    private var characters: [RMCharacter] = []{
+        didSet {
+            for character in characters {
+                let viewModel = RMCharacterCollectionViewCellViewModel(characterName: character.name, charactarStatusText: character.status, characterImageUrl: URL(string: character.image))
+                cellViewModels.append(viewModel)
+
+            }
+        }
+    }
+    private var cellViewModels: [RMCharacterCollectionViewCellViewModel] = []
+
+    
+    
+    public func fetchCharacters(){
+        RMService.shared.execute(.listCaharactersRequests,
+                                 expecting: RMGetCharactersResponse.self
+        ) { [weak self] result in
             switch result {
-            case .success(let model):
-                print("example image url"+String(model.results.first?.image ?? "No Image"))
+            case .success(let responseModel):
+                let results = responseModel.results
+                self?.characters = results
             case .failure(let error):
                 print(String(describing: error))
             }
@@ -23,7 +40,7 @@ final class RMCharactersListViewModel: NSObject {
 
 extension RMCharactersListViewModel: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 20
+        return cellViewModels.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -31,13 +48,8 @@ extension RMCharactersListViewModel: UICollectionViewDataSource, UICollectionVie
             fatalError("Unsupported cell")
         }
         
-        let viewModel = RMCharacterCollectionViewCellViewModel(characterName: "Afraz",
-                                                               charactarStatusText: .alive,
-                                                               characterImageUrl: URL(string: "https://rickandmortyapi.com/api/character/avatar/1.jpeg"))
-        
-        cell.configure(with: viewModel)
-
-         return cell
+        cell.configure(with: cellViewModels[indexPath.row])
+        return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
