@@ -10,7 +10,7 @@ import Foundation
 final class RMCharacterCollectionViewCellViewModel {
 
     var characterName: String
-    private let charactarStatusText: RMCharacterStatus
+    private let characterStatus: RMCharacterStatus
     private let characterImageUrl: URL?
     
     //MARK: - Init
@@ -18,16 +18,16 @@ final class RMCharacterCollectionViewCellViewModel {
     
     init(
         characterName: String,
-        charactarStatusText: RMCharacterStatus,
+        characterStatus: RMCharacterStatus,
         characterImageUrl: URL?
     ) {
         self.characterName = characterName
-        self.charactarStatusText = charactarStatusText
+        self.characterStatus = characterStatus
         self.characterImageUrl = characterImageUrl
     }
     
     public var characterStatusText: String {
-        return charactarStatusText.rawValue
+        return "Status: \(characterStatus.text)"
     }
     
     public func fetchImage(completion: @escaping(Result<Data, Error>) -> Void){

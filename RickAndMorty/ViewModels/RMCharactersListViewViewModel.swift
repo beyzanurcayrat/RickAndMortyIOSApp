@@ -7,13 +7,17 @@
 
 import UIKit
 
+protocol RMCharactersListViewViewModelDelegate: AnyObject {
+    func didLoadInitialCharacters()
+}
 
-final class RMCharactersListViewModel: NSObject {
+final class RMCharactersListViewViewModel: NSObject {
     
+    public weak var delegate: RMCharactersListViewViewModelDelegate?
     private var characters: [RMCharacter] = []{
         didSet {
             for character in characters {
-                let viewModel = RMCharacterCollectionViewCellViewModel(characterName: character.name, charactarStatusText: character.status, characterImageUrl: URL(string: character.image))
+                let viewModel = RMCharacterCollectionViewCellViewModel(characterName: character.name, characterStatus: character.status, characterImageUrl: URL(string: character.image))
                 cellViewModels.append(viewModel)
 
             }
@@ -31,6 +35,9 @@ final class RMCharactersListViewModel: NSObject {
             case .success(let responseModel):
                 let results = responseModel.results
                 self?.characters = results
+                DispatchQueue.main.async {
+                    self?.delegate?.didLoadInitialCharacters()
+                }
             case .failure(let error):
                 print(String(describing: error))
             }
@@ -38,7 +45,7 @@ final class RMCharactersListViewModel: NSObject {
     }
 }
 
-extension RMCharactersListViewModel: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
+extension RMCharactersListViewViewModel: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return cellViewModels.count
     }
