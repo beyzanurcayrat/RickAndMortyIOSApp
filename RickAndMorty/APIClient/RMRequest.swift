@@ -9,7 +9,7 @@ import Foundation
 
 /// Object That Represent a singlet API call.
 final class RMRequest{
-
+    
     /// API Constants
     private struct Constants {
         static let baseUrl = "https://rickandmortyapi.com/api"
@@ -26,7 +26,7 @@ final class RMRequest{
     private let queryParameters: [URLQueryItem]
     
     /// Constructed url for the api request in string format
-        private var urlString: String {
+    private var urlString: String {
         var string = Constants.baseUrl
         string += "/"
         string += endpoint.rawValue
@@ -38,13 +38,15 @@ final class RMRequest{
                 string += "/\($0)"
             })
         }
-    
+        
         if !queryParameters.isEmpty{
             string += "?"
             let argumentString = queryParameters.compactMap({
                 guard let value = $0.value else {return nil}
                 return "\($0.name) = \(value)"
             }).joined(separator: "&")
+            string += argumentString
+            
         }
         return string
     }
@@ -67,7 +69,7 @@ final class RMRequest{
     ///  -endpoint: Target endpoint
     ///  -pathComponent: Collection of path components
     ///  -queryParameters: Collection of query parameters
-      public init(
+    public init(
         endpoint: RMEndpoint,
         pathComponents: [String] = [],
         queryParameters: [URLQueryItem] = []
@@ -76,8 +78,39 @@ final class RMRequest{
         self.pathComponents = pathComponents
         self.queryParameters = queryParameters
     }
-   
     
+    
+    convenience init?(url: URL){
+        let string = url.absoluteString
+        if !string.contains(Constants.baseUrl){
+            return nil
+        }
+        
+        let trimmed = string.replacingOccurrences(of: Constants.baseUrl+"/", with: "")
+        if trimmed.contains("/"){
+            let components = trimmed.components(separatedBy: "/")
+            if !components.isEmpty {
+                let endpointString = components[0]
+                if let rmEndpoint = RMEndpoint(rawValue: endpointString){
+                    self.init(endpoint: rmEndpoint)
+                    return
+                }
+            }
+        }
+        else if trimmed.contains("?"){
+                let components = trimmed.components(separatedBy: "?")
+                if !components.isEmpty{
+                    let endpointString = components[0]
+                    if let rmEndpoint = RMEndpoint(rawValue: endpointString){
+                        self.init(endpoint: rmEndpoint)
+                        return
+                    }
+                }
+            }
+        return nil
+        
+        
+    }
 }
 
 extension RMRequest {
