@@ -23,10 +23,15 @@ final class RMCharactersListViewViewModel: NSObject {
     
     private var characters: [RMCharacter] = []{
         didSet {
-            print("Creating viewModels")
-            for character in characters where !cellViewModels.contains(where: { $0.characterName == character.name}){
-                let viewModel = RMCharacterCollectionViewCellViewModel(characterName: character.name, characterStatus: character.status, characterImageUrl: URL(string: character.image))
-                cellViewModels.append(viewModel)
+            for character in characters {
+                let viewModel = RMCharacterCollectionViewCellViewModel(
+                    characterName: character.name,
+                    characterStatus: character.status,
+                    characterImageUrl: URL(string: character.image)
+                )
+                if !cellViewModels.contains(viewModel){
+                    cellViewModels.append(viewModel)
+                }
                 
             }
         }
@@ -75,26 +80,34 @@ final class RMCharactersListViewViewModel: NSObject {
             
             switch result {
             case .success(let responseModel):
+                print("Pre-update: \(strongSelf.cellViewModels.count)")
                 let moreResults = responseModel.results
                 let info = responseModel.info
                 strongSelf.apiInfo = info
-                
-                print(moreResults.count)
-                print(moreResults.first?.name)
-                
+
                 let originalCount = strongSelf.characters.count
                 let newCount = moreResults.count
                 let total = originalCount+newCount
                 let startingIndex = total - newCount
-                let indexPathsToAdd: [IndexPath] = Array(startingIndex..<(startingIndex+newCount)).compactMap({return IndexPath(row: $0, section: 0)})
+                let indexPathsToAdd: [IndexPath] = Array(startingIndex..<(startingIndex+newCount)).compactMap({
+                    return IndexPath(row: $0, section: 0)
+                })
+                
                 strongSelf.characters.append(contentsOf: moreResults)
-                print("Post-update: \(strongSelf.cellViewModels.count)")
+                
+                
+                DispatchQueue.main.async {
+                    strongSelf.delegate?.didLoadMoreCharacters(
+                        with: indexPathsToAdd
+                    )
 
-//                DispatchQueue.main.async {
-//                    strongSelf.delegate?.didLoadMoreCharacters(with: indexPathsToAdd )
-////                    strongSelf.isLoadingMoreCharacters = false
-//
-//                }
+                    print(String(strongSelf.characters.count))
+//                    strongSelf.isLoadingMoreCharacters = false
+                }
+                
+                 print("Post-update: \(strongSelf.cellViewModels.count)")
+
+
                 
 
             case .failure(let failure):
