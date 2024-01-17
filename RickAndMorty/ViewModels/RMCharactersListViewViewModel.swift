@@ -32,7 +32,6 @@ final class RMCharactersListViewViewModel: NSObject {
                 if !cellViewModels.contains(viewModel){
                     cellViewModels.append(viewModel)
                 }
-                
             }
         }
     }
@@ -102,7 +101,7 @@ final class RMCharactersListViewViewModel: NSObject {
                     )
 
                     print(String(strongSelf.characters.count))
-//                    strongSelf.isLoadingMoreCharacters = false
+                    strongSelf.isLoadingMoreCharacters = false
                 }
                 
                  print("Post-update: \(strongSelf.cellViewModels.count)")
