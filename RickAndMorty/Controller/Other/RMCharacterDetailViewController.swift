@@ -102,9 +102,9 @@ extension RMCharacterDetailViewController: UICollectionViewDelegate, UICollectio
             return cell
             
             
-        case .information(let viewModels): 
+        case .information(let viewModels):  
             guard let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: RMCharacterInfoCollectionViewCell.cellIdentifier,
+                withReuseIdentifier: RMCharacterInfoCollectionViewCell.cellIdentifer,
                 for: indexPath
             ) as? RMCharacterInfoCollectionViewCell else {
                 fatalError()
