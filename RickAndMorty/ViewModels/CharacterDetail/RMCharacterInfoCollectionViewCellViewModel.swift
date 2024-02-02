@@ -11,14 +11,38 @@ final class RMCharacterInfoCollectionViewCellViewModel {
     
     
     public let type: `Type`
-    
     public let value: String
+
+    static let dateFormatter: DateFormatter = {
+          let formatter = DateFormatter()
+          formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSZ"
+          formatter.timeZone = .current
+          return formatter
+      }()
+    
+    static let shortDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        formatter.timeZone = .current
+        return formatter
+    }()
+
+
+    
     public var title: String {
-        self.type.displayTitle
+        type.displayTitle
     }
     
     public var displayValue: String {
+        
         if value.isEmpty { return "None"}
+       
+            if let date = Self.dateFormatter.date(from: value),
+               type == .created {
+                return Self.shortDateFormatter.string(from: date)
+            
+        }
         return value
     }
     
@@ -93,40 +117,27 @@ final class RMCharacterInfoCollectionViewCellViewModel {
         var displayTitle: String{
 
             switch self {
-            case .status:
-                return "Something"
-            case .gender:
-                return "Something"
 
-            case .type:
-                return "Something"
-
-            case .species:
-                return "Something"
-
-            case .origin:
-                return "Something"
-
-            case .created:
-                return "Something"
-
-            case .location:
-                return "Something"
-
+            case .status,
+                 .gender,
+                 .type,
+                 .origin,
+                 .species,
+                 .origin,
+                 .created,
+                 .location,
+                 .episodeCount:
+                return rawValue.uppercased()
+            
             case .episodeCount:
-                return "Something"
-
-            }
+                return "Episode Count"
         }
-        
+                
     }
-    
-    init(
-        type: `Type`, value: String
-    
-    ){
+}
+
+    init(type: `Type`, value: String){
         self.value = value
         self.type = type
     }
-    
 }
