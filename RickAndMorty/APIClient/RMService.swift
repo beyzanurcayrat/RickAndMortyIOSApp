@@ -51,7 +51,7 @@ final class RMService{
             }
             catch {
                 completion(.failure(error))
-                
+                // KAFA BOS BOOOS
             }
         }
         task .resume()
